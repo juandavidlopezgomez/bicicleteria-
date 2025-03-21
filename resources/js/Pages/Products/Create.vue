@@ -219,7 +219,8 @@
 
 <script>
 import { ref, computed } from 'vue';
-import { useForm, Link } from '@inertiajs/inertia-vue3';
+import { Link } from '@inertiajs/vue3';
+import { useForm } from '@inertiajs/vue3';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 
 export default {

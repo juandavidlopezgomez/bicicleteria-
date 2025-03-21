@@ -27,31 +27,89 @@
         </nav>
 
         <!-- Menú Superior Dinámico -->
-        <nav v-if="isGestion" class="bg-gray-700 text-white p-4 flex space-x-4">
-            <Link href="/categories" class="hover:underline">Categorías</Link>
-            <Link href="/products" class="hover:underline">Productos</Link>
-            <Link href="/inventory" class="hover:underline">Inventario</Link>
-            <Link href="/sales" class="hover:underline">Ventas</Link>
-            <Link href="/reports" class="hover:underline">Reportes</Link>
+        <nav v-if="isGestion" class="bg-gray-700 text-white p-4 flex overflow-x-auto space-x-6">
+            <Link href="/categories" :class="{'text-yellow-300 font-bold': isCurrentPath('/categories'), 'hover:text-yellow-200': !isCurrentPath('/categories')}">Categorías</Link>
+            <Link href="/products" :class="{'text-yellow-300 font-bold': isCurrentPath('/products'), 'hover:text-yellow-200': !isCurrentPath('/products')}">Productos</Link>
+            <Link href="/inventory" :class="{'text-yellow-300 font-bold': isCurrentPath('/inventory'), 'hover:text-yellow-200': !isCurrentPath('/inventory')}">Inventario</Link>
+            <Link href="/inventory/low-stock" :class="{'text-yellow-300 font-bold': isCurrentPath('/inventory/low-stock'), 'hover:text-yellow-200': !isCurrentPath('/inventory/low-stock')}">Stock Bajo</Link>
+            <Link href="/products/import" :class="{'text-yellow-300 font-bold': isCurrentPath('/products/import'), 'hover:text-yellow-200': !isCurrentPath('/products/import')}">Importar/Exportar</Link>
+            <Link href="/barcode/print" :class="{'text-yellow-300 font-bold': isCurrentPath('/barcode/print'), 'hover:text-yellow-200': !isCurrentPath('/barcode/print')}">Etiquetas</Link>
         </nav>
 
         <!-- Contenido Principal con Menú Lateral -->
         <div class="flex">
-            <aside class="w-64 bg-gray-800 text-white h-screen p-4">
+            <aside class="w-64 bg-gray-800 text-white min-h-screen p-4">
                 <nav>
-                    <ul>
+                    <ul class="space-y-2">
                         <li>
-                            <Link href="/dashboard" class="block px-4 py-2 hover:bg-gray-700">Dashboard</Link>
+                            <Link href="/dashboard" :class="{'bg-gray-700 font-bold': isCurrentPath('/dashboard'), 'hover:bg-gray-700': !isCurrentPath('/dashboard')}" class="block px-4 py-2 rounded-md">
+                                Dashboard
+                            </Link>
+                        </li>
+                        
+                        <!-- Gestión de Catálogo -->
+                        <li class="pt-4">
+                            <h3 class="px-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">CATÁLOGO</h3>
                         </li>
                         <li>
-                            <Link href="/categories" class="block px-4 py-2 hover:bg-gray-700">Gestión</Link>
+                            <Link href="/categories" :class="{'bg-gray-700 font-bold': isCurrentPath('/categories'), 'hover:bg-gray-700': !isCurrentPath('/categories')}" class="block px-4 py-2 rounded-md">
+                                Categorías
+                            </Link>
+                        </li>
+                        <li>
+                            <Link href="/products" :class="{'bg-gray-700 font-bold': isCurrentPath('/products'), 'hover:bg-gray-700': !isCurrentPath('/products')}" class="block px-4 py-2 rounded-md">
+                                Productos
+                            </Link>
+                        </li>
+                        
+                        <!-- Inventario -->
+                        <li class="pt-4">
+                            <h3 class="px-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">INVENTARIO</h3>
+                        </li>
+                        <li>
+                            <Link href="/inventory" :class="{'bg-gray-700 font-bold': isCurrentPath('/inventory'), 'hover:bg-gray-700': !isCurrentPath('/inventory')}" class="block px-4 py-2 rounded-md">
+                                Movimientos
+                            </Link>
+                        </li>
+                        <li>
+                            <Link href="/inventory/low-stock" :class="{'bg-gray-700 font-bold': isCurrentPath('/inventory/low-stock'), 'hover:bg-gray-700': !isCurrentPath('/inventory/low-stock')}" class="block px-4 py-2 rounded-md">
+                                Stock Bajo
+                                <span v-if="lowStockCount > 0" class="inline-flex items-center justify-center ml-2 w-5 h-5 text-xs font-semibold text-white bg-red-500 rounded-full">
+                                    {{ lowStockCount }}
+                                </span>
+                            </Link>
+                        </li>
+                        
+                        <!-- Herramientas -->
+                        <li class="pt-4">
+                            <h3 class="px-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">HERRAMIENTAS</h3>
+                        </li>
+                        <li>
+                            <Link href="/products/import" :class="{'bg-gray-700 font-bold': isCurrentPath('/products/import'), 'hover:bg-gray-700': !isCurrentPath('/products/import')}" class="block px-4 py-2 rounded-md">
+                                Importar/Exportar
+                            </Link>
+                        </li>
+                        <li>
+                            <Link href="/barcode/print" :class="{'bg-gray-700 font-bold': isCurrentPath('/barcode/print'), 'hover:bg-gray-700': !isCurrentPath('/barcode/print')}" class="block px-4 py-2 rounded-md">
+                                Etiquetas
+                            </Link>
+                        </li>
+                        
+                        <!-- Administración -->
+                        <li v-if="hasRole('admin')" class="pt-4">
+                            <h3 class="px-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">ADMINISTRACIÓN</h3>
+                        </li>
+                        <li v-if="hasRole('admin')">
+                            <Link href="/users" :class="{'bg-gray-700 font-bold': isCurrentPath('/users'), 'hover:bg-gray-700': !isCurrentPath('/users')}" class="block px-4 py-2 rounded-md">
+                                Usuarios
+                            </Link>
                         </li>
                     </ul>
                 </nav>
             </aside>
 
             <!-- Contenido Principal -->
-            <main class="flex-1 p-6">
+            <main class="flex-1 p-6 overflow-auto">
                 <slot />
             </main>
         </div>
@@ -60,7 +118,7 @@
 
 <script>
 import { Link, usePage } from '@inertiajs/vue3';
-import { computed } from 'vue';
+import { computed, ref, onMounted } from 'vue';
 import { router } from '@inertiajs/vue3';
 
 export default {
@@ -70,6 +128,7 @@ export default {
     setup() {
         const { props } = usePage();
         const auth = props.auth;
+        const lowStockCount = ref(0);
 
         const hasRole = (role) => {
             return auth.user && auth.user.roles && auth.user.roles.some(r => r.name === role);
@@ -85,14 +144,28 @@ export default {
 
         // Detectar si estamos en la sección de Gestión
         const isGestion = computed(() => {
-            return window.location.pathname.startsWith('/categories') ||
-                   window.location.pathname.startsWith('/products') ||
-                   window.location.pathname.startsWith('/inventory') ||
-                   window.location.pathname.startsWith('/sales') ||
-                   window.location.pathname.startsWith('/reports');
+            return [
+                '/categories', 
+                '/products', 
+                '/inventory',
+                '/barcode',
+                '/import-export'
+            ].some(path => window.location.pathname.startsWith(path));
+        });
+        
+        // Comprobar si estamos en una ruta específica
+        const isCurrentPath = (path) => {
+            return window.location.pathname === path || window.location.pathname.startsWith(path + '/');
+        };
+        
+        // Cargar el contador de productos con stock bajo
+        onMounted(() => {
+            // Aquí se podría hacer una petición AJAX para obtener el número de productos con stock bajo
+            // Por ahora, usaremos un valor de ejemplo
+            lowStockCount.value = 5;
         });
 
-        return { auth, hasRole, hasAnyRole, logout, isGestion };
+        return { auth, hasRole, hasAnyRole, logout, isGestion, isCurrentPath, lowStockCount };
     },
 };
 </script>

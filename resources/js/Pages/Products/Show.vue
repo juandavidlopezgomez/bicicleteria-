@@ -17,7 +17,7 @@
           </Link>
           <div class="flex space-x-2">
             <Link
-              v-if="$page.props.auth.user.permissions.includes('products.edit')"
+              v-if="hasPermission('products.edit')"
               :href="route('products.edit', product.id)"
               class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
             >
@@ -165,14 +165,25 @@
 
 <script setup>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import { Link } from '@inertiajs/inertia-vue3';
-import { ref } from 'vue';
+import { Link, usePage } from '@inertiajs/inertia-vue3';
+import { ref, computed } from 'vue';
 
 // Props
 const props = defineProps({
   product: Object,
   barcodeImage: String
 });
+
+// Acceso a la página para verificar permisos
+const page = usePage();
+
+// Función para verificar permisos de manera segura
+const hasPermission = (permission) => {
+  return page.props.auth && 
+         page.props.auth.user && 
+         page.props.auth.user.permissions && 
+         page.props.auth.user.permissions.includes(permission);
+};
 
 // Calcular el margen de ganancia
 const calculateMargin = () => {

@@ -51,7 +51,7 @@
               <!-- Botones de acción -->
               <div class="flex items-center gap-2">
                 <Link
-                  v-if="$page.props.auth.user.permissions.includes('products.create')"
+                  v-if="hasPermission('products.create')"
                   :href="route('products.create')"
                   class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
                 >
@@ -169,35 +169,35 @@
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       <div class="flex space-x-2">
                         <Link 
-                          v-if="$page.props.auth.user.permissions.includes('products.view')"
+                          v-if="hasPermission('products.view')"
                           :href="route('products.show', product.id)" 
                           class="text-indigo-600 hover:text-indigo-900"
                         >
                           Ver
                         </Link>
                         <Link 
-                          v-if="$page.props.auth.user.permissions.includes('products.edit')"
+                          v-if="hasPermission('products.edit')"
                           :href="route('products.edit', product.id)" 
                           class="text-blue-600 hover:text-blue-900"
                         >
                           Editar
                         </Link>
                         <button 
-                          v-if="$page.props.auth.user.permissions.includes('products.edit')"
+                          v-if="hasPermission('products.edit')"
                           @click="toggleActive(product)" 
                           class="text-yellow-600 hover:text-yellow-900"
                         >
                           {{ product.active ? 'Desactivar' : 'Activar' }}
                         </button>
                         <button 
-                          v-if="$page.props.auth.user.permissions.includes('products.edit')"
+                          v-if="hasPermission('products.edit')"
                           @click="toggleFeatured(product)" 
                           class="text-purple-600 hover:text-purple-900"
                         >
                           {{ product.featured ? 'No destacar' : 'Destacar' }}
                         </button>
                         <button 
-                          v-if="$page.props.auth.user.permissions.includes('products.delete')"
+                          v-if="hasPermission('products.delete')"
                           @click="confirmDelete(product)" 
                           class="text-red-600 hover:text-red-900"
                         >
@@ -228,7 +228,7 @@
 
 <script>
 import { ref, watch } from 'vue';
-import { Inertia } from '@inertiajs/core';
+import { router } from '@inertiajs/vue3';
 import { Link } from '@inertiajs/vue3';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import Pagination from '@/Components/Pagination.vue';
@@ -277,7 +277,7 @@ export default {
     };
 
     const filterProducts = () => {
-      Inertia.get(route('products.index'), filters.value, { 
+      router.get(route('products.index'), filters.value, { 
         preserveState: true,
         replace: true
       });
@@ -294,20 +294,20 @@ export default {
     };
 
     const toggleActive = (product) => {
-      Inertia.put(route('products.toggle-active', product.id), {}, {
+      router.put(route('products.toggle-active', product.id), {}, {
         preserveScroll: true
       });
     };
 
     const toggleFeatured = (product) => {
-      Inertia.put(route('products.toggle-featured', product.id), {}, {
+      router.put(route('products.toggle-featured', product.id), {}, {
         preserveScroll: true
       });
     };
 
     const confirmDelete = (product) => {
       if (confirm(`¿Estás seguro de eliminar el producto "${product.name}"?`)) {
-        Inertia.delete(route('products.destroy', product.id));
+        router.delete(route('products.destroy', product.id));
       }
     };
 
