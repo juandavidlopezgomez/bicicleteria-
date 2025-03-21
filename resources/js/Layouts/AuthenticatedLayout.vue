@@ -47,55 +47,24 @@
                             </Link>
                         </li>
                         
-                        <!-- Gestión de Catálogo -->
+                        <!-- SOLO INVENTARIO con Submenú Desplegable para Productos -->
                         <li class="pt-4">
-                            <h3 class="px-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">CATÁLOGO</h3>
-                        </li>
-                        <li>
-                            <Link href="/categories" :class="{'bg-gray-700 font-bold': isCurrentPath('/categories'), 'hover:bg-gray-700': !isCurrentPath('/categories')}" class="block px-4 py-2 rounded-md">
-                                Categorías
-                            </Link>
-                        </li>
-                        <li>
-                            <Link href="/products" :class="{'bg-gray-700 font-bold': isCurrentPath('/products'), 'hover:bg-gray-700': !isCurrentPath('/products')}" class="block px-4 py-2 rounded-md">
-                                Productos
-                            </Link>
+                            <div @click="toggleInventarioMenu" class="flex justify-between items-center cursor-pointer px-4 py-2 rounded-md hover:bg-gray-700" :class="{'bg-gray-700 font-bold': isCurrentPath('/inventory')}">
+                                <span>Inventario</span>
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 transition-transform" :class="{ 'rotate-180': inventarioMenuOpen }" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                </svg>
+                            </div>
+                            <ul v-show="inventarioMenuOpen" class="ml-4 mt-2 space-y-1">
+                                <li>
+                                    <Link href="/inventory/products" :class="{'bg-gray-700 font-bold': isCurrentPath('/inventory/products'), 'hover:bg-gray-700': !isCurrentPath('/inventory/products')}" class="block px-4 py-2 rounded-md">
+                                        Productos
+                                    </Link>
+                                </li>
+                            </ul>
                         </li>
                         
-                        <!-- Inventario -->
-                        <li class="pt-4">
-                            <h3 class="px-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">INVENTARIO</h3>
-                        </li>
-                        <li>
-                            <Link href="/inventory" :class="{'bg-gray-700 font-bold': isCurrentPath('/inventory'), 'hover:bg-gray-700': !isCurrentPath('/inventory')}" class="block px-4 py-2 rounded-md">
-                                Movimientos
-                            </Link>
-                        </li>
-                        <li>
-                            <Link href="/inventory/low-stock" :class="{'bg-gray-700 font-bold': isCurrentPath('/inventory/low-stock'), 'hover:bg-gray-700': !isCurrentPath('/inventory/low-stock')}" class="block px-4 py-2 rounded-md">
-                                Stock Bajo
-                                <span v-if="lowStockCount > 0" class="inline-flex items-center justify-center ml-2 w-5 h-5 text-xs font-semibold text-white bg-red-500 rounded-full">
-                                    {{ lowStockCount }}
-                                </span>
-                            </Link>
-                        </li>
-                        
-                        <!-- Herramientas -->
-                        <li class="pt-4">
-                            <h3 class="px-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">HERRAMIENTAS</h3>
-                        </li>
-                        <li>
-                            <Link href="/products/import" :class="{'bg-gray-700 font-bold': isCurrentPath('/products/import'), 'hover:bg-gray-700': !isCurrentPath('/products/import')}" class="block px-4 py-2 rounded-md">
-                                Importar/Exportar
-                            </Link>
-                        </li>
-                        <li>
-                            <Link href="/barcode/print" :class="{'bg-gray-700 font-bold': isCurrentPath('/barcode/print'), 'hover:bg-gray-700': !isCurrentPath('/barcode/print')}" class="block px-4 py-2 rounded-md">
-                                Etiquetas
-                            </Link>
-                        </li>
-                        
-                        <!-- Administración -->
+                        <!-- Administración (mantenido) -->
                         <li v-if="hasRole('admin')" class="pt-4">
                             <h3 class="px-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">ADMINISTRACIÓN</h3>
                         </li>
@@ -129,6 +98,11 @@ export default {
         const { props } = usePage();
         const auth = props.auth;
         const lowStockCount = ref(0);
+        const inventarioMenuOpen = ref(false);
+
+        const toggleInventarioMenu = () => {
+            inventarioMenuOpen.value = !inventarioMenuOpen.value;
+        };
 
         const hasRole = (role) => {
             return auth.user && auth.user.roles && auth.user.roles.some(r => r.name === role);
@@ -170,17 +144,24 @@ export default {
             // Aquí se podría hacer una petición AJAX para obtener el número de productos con stock bajo
             // Por ahora, usaremos un valor de ejemplo
             lowStockCount.value = 5;
+
+            // Abrir automáticamente el menú de inventario si estamos en una ruta de inventario
+            if (isCurrentPath('/inventory')) {
+                inventarioMenuOpen.value = true;
+            }
         });
 
         return { 
             auth, 
             hasRole, 
             hasAnyRole, 
-            hasPermission, // Exponemos la función
+            hasPermission,
             logout, 
             isGestion, 
             isCurrentPath, 
-            lowStockCount 
+            lowStockCount,
+            inventarioMenuOpen,
+            toggleInventarioMenu
         };
     },
 };
