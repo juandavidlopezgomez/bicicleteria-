@@ -11,7 +11,12 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        //
+        // Registrar los middlewares de Spatie Laravel Permission
+        $middleware->alias([
+            'role' => \Spatie\Permission\Middleware\RoleMiddleware::class, // Cambiado de Middlewares a Middleware
+            'permission' => \Spatie\Permission\Middleware\PermissionMiddleware::class, // Cambiado de Middlewares a Middleware
+            'role_or_permission' => \Spatie\Permission\Middleware\RoleOrPermissionMiddleware::class, // Cambiado de Middlewares a Middleware
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //
