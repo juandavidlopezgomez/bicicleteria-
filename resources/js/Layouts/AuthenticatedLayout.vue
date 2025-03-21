@@ -137,6 +137,13 @@ export default {
         const hasAnyRole = (roles) => {
             return auth.user && auth.user.roles && roles.some(role => auth.user.roles.some(r => r.name === role));
         };
+        
+        // Añadimos la función hasPermission
+        const hasPermission = (permission) => {
+            return auth.user && 
+                auth.user.permissions && 
+                auth.user.permissions.includes(permission);
+        };
 
         const logout = () => {
             router.post('/logout');
@@ -165,7 +172,16 @@ export default {
             lowStockCount.value = 5;
         });
 
-        return { auth, hasRole, hasAnyRole, logout, isGestion, isCurrentPath, lowStockCount };
+        return { 
+            auth, 
+            hasRole, 
+            hasAnyRole, 
+            hasPermission, // Exponemos la función
+            logout, 
+            isGestion, 
+            isCurrentPath, 
+            lowStockCount 
+        };
     },
 };
 </script>

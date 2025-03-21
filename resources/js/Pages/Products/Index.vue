@@ -228,7 +228,7 @@
 
 <script>
 import { ref, watch } from 'vue';
-import { router } from '@inertiajs/vue3';
+import { router, usePage } from '@inertiajs/vue3'; // Añadido usePage
 import { Link } from '@inertiajs/vue3';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import Pagination from '@/Components/Pagination.vue';
@@ -266,6 +266,13 @@ export default {
       sort: props.filters.sort || 'created_at',
       direction: props.filters.direction || 'desc'
     });
+
+    // Definimos la función hasPermission
+    const hasPermission = (permission) => {
+      return usePage().props.auth.user && 
+             usePage().props.auth.user.permissions && 
+             usePage().props.auth.user.permissions.includes(permission);
+    };
 
     let searchTimeout;
 
@@ -323,7 +330,8 @@ export default {
       toggleActive,
       toggleFeatured,
       confirmDelete,
-      formatPrice
+      formatPrice,
+      hasPermission // Incluimos la función en el retorno
     };
   }
 };
