@@ -52,17 +52,17 @@
               <div class="flex items-center gap-2">
                 <Link
                   v-if="hasPermission('products.create')"
-                  :href="route('products.create')"
+                  href="/products/create"
                   class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
                 >
                   Nuevo Producto
                 </Link>
-                <Link
-                  :href="route('products.index', { ...filters, format: 'export' })"
+                
+                  :href="`/products?format=export&search=${filters.search}&category_id=${filters.category_id}&stock_status=${filters.stock_status}`"
                   class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
                 >
                   Exportar
-                </Link>
+                </a>
               </div>
             </div>
 
@@ -170,14 +170,14 @@
                       <div class="flex space-x-2">
                         <Link 
                           v-if="hasPermission('products.view')"
-                          :href="route('products.show', product.id)" 
+                          :href="`/products/${product.id}`" 
                           class="text-indigo-600 hover:text-indigo-900"
                         >
                           Ver
                         </Link>
                         <Link 
                           v-if="hasPermission('products.edit')"
-                          :href="route('products.edit', product.id)" 
+                          :href="`/products/${product.id}/edit`" 
                           class="text-blue-600 hover:text-blue-900"
                         >
                           Editar
@@ -228,8 +228,7 @@
 
 <script>
 import { ref, watch } from 'vue';
-import { router, usePage } from '@inertiajs/vue3'; // Añadido usePage
-import { Link } from '@inertiajs/vue3';
+import { router, usePage, Link } from '@inertiajs/vue3';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import Pagination from '@/Components/Pagination.vue';
 
@@ -284,7 +283,7 @@ export default {
     };
 
     const filterProducts = () => {
-      router.get(route('products.index'), filters.value, { 
+      router.get('/products', filters.value, { 
         preserveState: true,
         replace: true
       });
@@ -301,20 +300,20 @@ export default {
     };
 
     const toggleActive = (product) => {
-      router.put(route('products.toggle-active', product.id), {}, {
+      router.put(`/products/${product.id}/toggle-active`, {}, {
         preserveScroll: true
       });
     };
 
     const toggleFeatured = (product) => {
-      router.put(route('products.toggle-featured', product.id), {}, {
+      router.put(`/products/${product.id}/toggle-featured`, {}, {
         preserveScroll: true
       });
     };
 
     const confirmDelete = (product) => {
       if (confirm(`¿Estás seguro de eliminar el producto "${product.name}"?`)) {
-        router.delete(route('products.destroy', product.id));
+        router.delete(`/products/${product.id}`);
       }
     };
 
